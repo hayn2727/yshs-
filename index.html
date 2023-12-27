@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>지렁이 게임</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+        }
+        #game-container {
+            position: relative;
+            width: 400px;
+            height: 400px;
+            border: 1px solid #ccc;
+            overflow: hidden;
+            margin: auto;
+        }
+        .snake {
+            position: absolute;
+            background-color: green;
+            width: 20px;
+            height: 20px;
+        }
+        .food {
+            position: absolute;
+            background-color: red;
+            width: 20px;
+            height: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="start-page">
+        <img src="C:\Users\PC20\Desktop\d868dc93477b9c78c1aa0905.jpg" alt="귀여운 지렁이 이미지" id="snake-image">
+        <button id="start-button" onclick="startGame()">게임 시작</button>
+    </div>
+
+<div id="game-container">
+    <div class="snake" id="snake"></div>
+    <div class="food" id="food"></div>
+</div>
+<button id="start-button" onclick="startGame()">게임 시작</button>
+
+<script>
+    const gameContainer = document.getElementById("game-container");
+    const snakeElement = document.getElementById("snake");
+    const foodElement = document.getElementById("food");
+    const startButton = document.getElementById("start-button");
+    let snake = [{ x: 100, y: 100 }];
+    let food = { x: 200, y: 200 };
+    let direction = "right";
+    let isGameOver = false;
+
+    function startGame() {
+        isGameOver = false;
+        snake = [{ x: 100, y: 100 }];
+        generateFood();
+        direction = "right";
+        startButton.style.display = "none";
+        gameLoop();
+    }
+
+    function gameLoop() {
+        if (!isGameOver) {
+            moveSnake();
+            checkCollision();
+            checkFood();
+            renderGame();
+            setTimeout(gameLoop, 100);
+        }
+    }
+
+    function moveSnake() {
+        const head = { ...snake[0] };
+
+        switch (direction) {
+            case "up":
+                head.y -= 20;
+                break;
+            case "down":
+                head.y += 20;
+                break;
+            case "left":
+                head.x -= 20;
+                break;
+            case "right":
+                head.x += 20;
+                break;
+        }
+
+        snake.unshift(head);
+        snake.pop();
+    }
+
+    function checkCollision() {
+        const head = snake[0];
+
+        // Check collision with walls
+        if (head.x < 0 || head.x >= gameContainer.clientWidth || head.y < 0 || head.y >= gameContainer.clientHeight) {
+            endGame();
+        }
+
+        // Check collision with self
+        for (let i = 1; i < snake.length; i++) {
+            if (head.x === snake[i].x && head.y === snake[i].y) {
+                endGame();
+            }
+        }
+    }
+
+    function checkFood() {
+        const head = snake[0];
+
+        // Check collision with food
+        if (head.x === food.x && head.y === food.y) {
+            snake.push({ x: head.x, y: head.y });
+            generateFood();
+        }
+    }
+
+    function generateFood() {
+        const maxX = (gameContainer.clientWidth / 20) - 1;
+        const maxY = (gameContainer.clientHeight / 20) - 1;
+
+        food = {
+            x: Math.floor(Math.random() * maxX) * 20,
+            y: Math.floor(Math.random() * maxY) * 20
+        };
+
+        foodElement.style.left = food.x + "px";
+        foodElement.style.top = food.y + "px";
+    }
+
+    function renderGame() {
+        snakeElement.style.left = snake[0].x + "px";
+        snakeElement.style.top = snake[0].y + "px";
+
+        if (snake.length > 1) {
+            for (let i = 1; i < snake.length; i++) {
+                const segment = document.createElement("div");
+                segment.className = "snake";
+                segment.style.left = snake[i].x + "px";
+                segment.style.top = snake[i].y + "px";
+                gameContainer.appendChild(segment);
+            }
+        }
+    }
+
+    function endGame() {
+        isGameOver = true;
+        startButton.style.display = "block";
+        alert("게임 오버!");
+    }
+
+    document.addEventListener("keydown", function (event) {
+        if (event.key.startsWith("Arrow") && !isGameOver) {
+            direction = event.key.toLowerCase().replace("arrow", "");
+        }
+    });
+
+    // Initial setup
+    generateFood();
+</script>
+
+</body>
+</html>
